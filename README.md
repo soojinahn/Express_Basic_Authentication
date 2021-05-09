@@ -9,4 +9,6 @@
 * Password: password
 
 ### Screenshots of App:
+![Basic Authentication Home](https://user-images.githubusercontent.com/68924449/117568767-4dae9b80-b090-11eb-910a-fc7768225d1b.PNG)
+![Logged in](https://user-images.githubusercontent.com/68924449/117568771-50a98c00-b090-11eb-9d5e-93408abfe253.PNG)
 
