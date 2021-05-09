@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 
 const app = express();
 const crypto = require('crypto');
+const authTokens = {};
 
 const users = [
     // This user is added to the array to avoid creating a new user on each restart
@@ -56,11 +57,52 @@ app.post('/register', (req, res) => {
     }
 });
 
+app.post('/login', (req, res) => {
+    const { email, password } = req.body;
+    const hashedPassword = getHashedPassword(password);
+
+    const user = users.find(u => {
+        return u.email === email && hashedPassword === u.password
+    });
+
+    if (user) {
+        const authToken = generateAuthToken();
+
+        // Store authentication token
+        authTokens[authToken] = user;
+
+        // Setting the auth token in cookies
+        res.cookie('AuthToken', authToken);
+
+        // Redirect user to the protected page
+        res.redirect('/protected');
+    } else {
+        res.render('login', {
+            message: 'Invalid username or password',
+            messageClass: 'alert-danger'
+        });
+    }
+});
+
 const getHashedPassword = (password) => {
     const sha256 = crypto.createHash('sha256');
     const hash = sha256.update(password).digest('base64');
     return hash;
 }
+
+const generateAuthToken = () => {
+    return crypto.randomBytes(30).toString('hex');
+}
+
+app.use((req, res, next) => {
+    // Get auth token from the cookies
+    const authToken = req.cookies['AuthToken'];
+
+    // Inject the user to the request
+    req.user = authTokens[authToken];
+
+    next();
+});
 
 // To support URL-encoded bodies
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -82,6 +124,21 @@ app.get('/', function (req, res) {
 
 app.get('/register', (req, res) => {
     res.render('register');
+});
+
+app.get('/login', (req, res) => {
+    res.render('login');
+});
+
+app.get('/protected', (req, res) => {
+    if (req.user) {
+        res.render('protected');
+    } else {
+        res.render('login', {
+            message: 'Please login to continue',
+            messageClass: 'alert-danger'
+        });
+    }
 });
 
 app.listen(3000);
