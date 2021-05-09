@@ -4,7 +4,7 @@
 3. Run in terminal: node app.js
 4. Register for an account and login
 
-## Existing User for Testing:
+### Existing User for Testing:
 * Username: johndoe@email.com
 * Password: password
 
